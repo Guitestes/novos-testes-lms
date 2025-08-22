@@ -75,7 +75,6 @@ import AdminRooms from "./pages/admin/AdminRooms";
 import AdminMarketing from "./pages/admin/AdminMarketing";
 import EmailMetrics from "./pages/EmailMetrics";
 import EmailTesting from "./pages/admin/EmailTesting";
-import ProfessorClasses from './pages/professor/ProfessorClasses';
 
 // Usando o queryClient global definido em utils/queryClient.ts
 
