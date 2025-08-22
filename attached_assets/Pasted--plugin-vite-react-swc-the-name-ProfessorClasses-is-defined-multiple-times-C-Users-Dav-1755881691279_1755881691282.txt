@@ -1,0 +1,35 @@
+[plugin:vite:react-swc] × the name `ProfessorClasses` is defined multiple times
+    ╭─[C:/Users/DaviF/Downloads/Nova pasta/novos-testes-lms/src/App.tsx:58:1]
+ 55 │ import ProfessorProfile from "./pages/professor/ProfessorProfile";
+ 56 │ import FichaControle from "./pages/professor/FichaControle";
+ 57 │ import ClassAttendance from "./pages/professor/ClassAttendance";
+ 58 │ import ProfessorClasses from './pages/professor/ProfessorClasses';
+    ·        ────────┬───────
+    ·                ╰── previous definition of `ProfessorClasses` here
+ 59 │ import CourseApproval from "./pages/admin/CourseApproval";
+ 60 │ import QuizBuilder from "./pages/admin/QuizBuilder";
+ 61 │ import QuizResults from "./pages/admin/QuizResults";
+ 62 │ import AdminAnnouncements from "./pages/admin/AdminAnnouncements";
+ 63 │ import Calendar from "./pages/Calendar";
+ 64 │ import AdminClasses from "./pages/admin/AdminClasses";
+ 65 │ import ClassEnrollments from "./pages/admin/ClassEnrollments";
+ 66 │ import ClassEventManager from "./pages/admin/ClassEventManager";
+ 67 │ import FormBuilder from "./pages/admin/FormBuilder";
+ 68 │ import AdminServiceProviders from "./pages/admin/AdminServiceProviders";
+ 69 │ import AdminFinancial from "./pages/admin/AdminFinancial";
+ 70 │ import AdminReports from "./pages/admin/AdminReports";
+ 71 │ import AdminProviderReports from "./pages/admin/AdminProviderReports";
+ 72 │ import NotFound from "./pages/NotFound";
+ 73 │ import AdminCalendar from "./pages/admin/AdminCalendar";
+ 74 │ import AdminRooms from "./pages/admin/AdminRooms";
+ 75 │ import AdminMarketing from "./pages/admin/AdminMarketing";
+ 76 │ import EmailMetrics from "./pages/EmailMetrics";
+ 77 │ import EmailTesting from "./pages/admin/EmailTesting";
+ 78 │ import ProfessorClasses from './pages/professor/ProfessorClasses';
+    ·        ────────┬───────
+    ·                ╰── `ProfessorClasses` redefined here
+ 79 │ 
+ 80 │ // Usando o queryClient global definido em utils/queryClient.ts
+ 80 │ 
+    ╰────
+C:/Users/DaviF/Downloads/Nova pasta/novos-testes-lms/src/App.tsx:58:1
