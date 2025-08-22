@@ -98,6 +98,7 @@ const CreateCourse = () => {
     duration: "",
     thumbnail: "",
     category: "",
+    level: "beginner" as const,
     expirationDate: "",
     hasEvaluativeActivity: false,
     evaluativeActivityDescription: "",
@@ -628,7 +629,7 @@ const CreateCourse = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="title">Título do Curso *</Label>
                 <Input
@@ -652,6 +653,19 @@ const CreateCourse = () => {
                     <SelectItem value="negocios">Negócios</SelectItem>
                     <SelectItem value="idiomas">Idiomas</SelectItem>
                     <SelectItem value="outros">Outros</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="level">Nível *</Label>
+                <Select value={courseData.level} onValueChange={(value) => handleInputChange('level', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o nível" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="beginner">Iniciante</SelectItem>
+                    <SelectItem value="intermediate">Intermediário</SelectItem>
+                    <SelectItem value="advanced">Avançado</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

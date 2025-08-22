@@ -219,9 +219,14 @@ export interface CreateCourseForm {
   title: string;
   description: string;
   thumbnail?: string;
-  duration: string;
+  duration?: string;
   instructor: string;
   expiryDate?: string;
+  category?: string;
+  hasEvaluativeActivity?: boolean;
+  evaluativeActivityDescription?: string;
+  level?: 'beginner' | 'intermediate' | 'advanced';
+  durationHours?: number;
 }
 
 export interface CreateModuleForm {

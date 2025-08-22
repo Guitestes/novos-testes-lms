@@ -127,6 +127,11 @@ export const courseService = {
         professor_id: courseData.professor_id || null,
         status: courseData.status || 'pending',
         expiry_date: courseData.expiryDate || null,
+        category: courseData.category || 'outros',
+        has_evaluative_activity: courseData.hasEvaluativeActivity || false,
+        evaluative_activity_description: courseData.evaluativeActivityDescription || null,
+        level: 'beginner', // valor padrão
+        duration_hours: parseInt(courseData.duration?.replace(/\D/g, '') || '0') || 60,
       };
 
       const { data, error } = await supabase
