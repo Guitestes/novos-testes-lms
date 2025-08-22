@@ -74,6 +74,7 @@ import AdminRooms from "./pages/admin/AdminRooms";
 import AdminMarketing from "./pages/admin/AdminMarketing";
 import EmailMetrics from "./pages/EmailMetrics";
 import EmailTesting from "./pages/admin/EmailTesting";
+import ProfessorClasses from './pages/professor/ProfessorClasses';
 
 // Usando o queryClient global definido em utils/queryClient.ts
 
@@ -83,7 +84,7 @@ const RealtimeSubscriptionsInitializer = ({ children }: { children: React.ReactN
     // Dynamically import to avoid circular dependencies
     import('./utils/realtimeSubscriptions').then(({ initializeRealtimeSubscriptions }) => {
       const unsubscribe = initializeRealtimeSubscriptions();
-      
+
       // Clean up subscriptions when component unmounts
       return () => {
         if (unsubscribe) {
@@ -94,7 +95,7 @@ const RealtimeSubscriptionsInitializer = ({ children }: { children: React.ReactN
       console.error('Failed to initialize real-time subscriptions:', error);
     });
   }, []);
-  
+
   return <>{children}</>;
 };
 
@@ -116,7 +117,7 @@ const App = () => {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/verify-document" element={<VerifyDocument />} />
-                
+
                 {/* Protected student routes */}
                 <Route element={<ProtectedRoute />}>
                   <Route path="/dashboard" element={<Dashboard />} />
@@ -133,7 +134,7 @@ const App = () => {
                   <Route path="/aluno/my-requests" element={<MyRequests />} />
                   <Route path="/calendar" element={<Calendar />} />
                 </Route>
-                
+
                 {/* Professor routes */}
                 <Route element={<ProfessorRoute />}>
                   <Route path="/professor" element={<Navigate to="/professor/dashboard" />} />
@@ -148,12 +149,13 @@ const App = () => {
                   <Route path="/professor/courses/:courseId/modules" element={<CourseModules />} />
                   <Route path="/professor/modules" element={<ProfessorModules />} />
                   <Route path="/professor/lessons" element={<ProfessorLessons />} />
+                  <Route path="/professor/classes" element={<ProfessorClasses />} />
                   <Route path="/professor/forum" element={<Forum />} />
                   <Route path="/professor/profile" element={<ProfessorProfile />} />
                   <Route path="/professor/ficha-controle" element={<FichaControle />} />
                   <Route path="/professor/attendance" element={<ClassAttendance />} />
                 </Route>
-                
+
                 {/* Admin routes */}
                 <Route element={<AdminRoute />}>
                   <Route path="/admin" element={<Navigate to="/admin/dashboard" />} />
@@ -186,7 +188,7 @@ const App = () => {
                   <Route path="/admin/email-metrics" element={<EmailMetrics />} />
                   <Route path="/admin/email-testing" element={<EmailTesting />} />
                 </Route>
-                
+
                 {/* 404 page */}
                 <Route path="*" element={<NotFound />} />
                 </Routes>
