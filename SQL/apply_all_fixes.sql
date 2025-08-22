@@ -13,6 +13,14 @@ ADD COLUMN IF NOT EXISTS price NUMERIC(10,2) DEFAULT 0;
 ALTER TABLE public.courses 
 ALTER COLUMN status SET DEFAULT 'pending';
 
+-- Remover políticas existentes para evitar conflitos
+DROP POLICY IF EXISTS "Professors can create courses" ON public.courses;
+DROP POLICY IF EXISTS "Professors can update their own courses" ON public.courses;
+DROP POLICY IF EXISTS "Professors can view their own courses" ON public.courses;
+DROP POLICY IF EXISTS "Admins can manage all courses" ON public.courses;
+DROP POLICY IF EXISTS "Enable insert for authenticated users only" ON public.courses;
+DROP POLICY IF EXISTS "Enable read access for all users" ON public.courses;
+
 -- Atualizar campos existentes para usar nomes corretos
 UPDATE public.courses SET status = 'pending' WHERE status IS NULL;
 
@@ -24,11 +32,6 @@ CHECK (status IN ('pending', 'approved', 'rejected', 'draft'));
 ALTER TABLE public.courses 
 ADD CONSTRAINT courses_level_check 
 CHECK (level IN ('beginner', 'intermediate', 'advanced'));
-
--- Remover políticas conflitantes
-DROP POLICY IF EXISTS "Professors can create courses" ON public.courses;
-DROP POLICY IF EXISTS "Professors can update their own courses" ON public.courses;
-DROP POLICY IF EXISTS "Professors can view their own courses" ON public.courses;
 
 -- Política para professores criarem cursos
 CREATE POLICY "Professors can create courses"

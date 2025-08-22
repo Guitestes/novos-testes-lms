@@ -55,6 +55,7 @@ import Forum from "./pages/professor/Forum";
 import ProfessorProfile from "./pages/professor/ProfessorProfile";
 import FichaControle from "./pages/professor/FichaControle";
 import ClassAttendance from "./pages/professor/ClassAttendance";
+import ProfessorClasses from './pages/professor/ProfessorClasses';
 import CourseApproval from "./pages/admin/CourseApproval";
 import QuizBuilder from "./pages/admin/QuizBuilder";
 import QuizResults from "./pages/admin/QuizResults";
@@ -154,6 +155,7 @@ const App = () => {
                   <Route path="/professor/profile" element={<ProfessorProfile />} />
                   <Route path="/professor/ficha-controle" element={<FichaControle />} />
                   <Route path="/professor/attendance" element={<ClassAttendance />} />
+                  <Route path="/professor/classes" element={<ProfessorClasses />} />
                 </Route>
 
                 {/* Admin routes */}
