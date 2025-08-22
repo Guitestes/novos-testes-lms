@@ -1,0 +1,306 @@
+-- Corrigir schema da tabela courses para coincidir com o código
+ALTER TABLE public.courses 
+ADD COLUMN IF NOT EXISTS level TEXT CHECK (level IN ('beginner', 'intermediate', 'advanced'));
+
+ALTER TABLE public.courses 
+ADD COLUMN IF NOT EXISTS duration_hours INTEGER DEFAULT 0;
+
+ALTER TABLE public.courses 
+ADD COLUMN IF NOT EXISTS price NUMERIC(10,2) DEFAULT 0;
+
+-- Garantir que os campos essenciais existam
+ALTER TABLE public.courses 
+ALTER COLUMN status SET DEFAULT 'pending';
+
+-- Atualizar campos existentes para usar nomes corretos
+UPDATE public.courses SET status = 'pending' WHERE status IS NULL;
+
+-- Remover constraints antigas (se já existirem)
+ALTER TABLE public.courses DROP CONSTRAINT IF EXISTS courses_status_check;
+ALTER TABLE public.courses DROP CONSTRAINT IF EXISTS courses_level_check;
+
+-- Adicionar constraints necessárias
+ALTER TABLE public.courses 
+ADD CONSTRAINT courses_status_check 
+CHECK (status IN ('pending', 'approved', 'rejected', 'draft'));
+
+ALTER TABLE public.courses 
+ADD CONSTRAINT courses_level_check 
+CHECK (level IN ('beginner', 'intermediate', 'advanced'));
+
+-- Remover políticas conflitantes
+DROP POLICY IF EXISTS "Professors can create courses" ON public.courses;
+DROP POLICY IF EXISTS "Professors can update their own courses" ON public.courses;
+DROP POLICY IF EXISTS "Professors can view their own courses" ON public.courses;
+DROP POLICY IF EXISTS "Admins can manage all courses" ON public.courses;
+DROP POLICY IF EXISTS "Enable insert for authenticated users only" ON public.courses;
+DROP POLICY IF EXISTS "Enable read access for all users" ON public.courses;
+
+-- Política para professores criarem cursos
+CREATE POLICY "Professors can create courses"
+ON public.courses
+FOR INSERT
+TO authenticated
+WITH CHECK (
+  auth.uid() = professor_id AND
+  EXISTS (
+    SELECT 1 FROM public.profiles 
+    WHERE id = auth.uid() AND role = 'professor'
+  )
+);
+
+-- Política para professores visualizarem seus próprios cursos
+CREATE POLICY "Professors can view their own courses"
+ON public.courses
+FOR SELECT
+TO authenticated
+USING (
+  auth.uid() = professor_id OR
+  status = 'approved' OR
+  EXISTS (
+    SELECT 1 FROM public.profiles 
+    WHERE id = auth.uid() AND role = 'admin'
+  )
+);
+
+-- Política para professores atualizarem seus próprios cursos (apenas se pendentes)
+CREATE POLICY "Professors can update their own courses"
+ON public.courses
+FOR UPDATE
+TO authenticated
+USING (
+  auth.uid() = professor_id AND 
+  status IN ('pending', 'draft')
+)
+WITH CHECK (
+  auth.uid() = professor_id AND 
+  status IN ('pending', 'draft')
+);
+
+-- Política para admins gerenciarem todos os cursos
+CREATE POLICY "Admins can manage all courses"
+ON public.courses
+FOR ALL
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM public.profiles 
+    WHERE id = auth.uid() AND role = 'admin'
+  )
+)
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.profiles 
+    WHERE id = auth.uid() AND role = 'admin'
+  )
+);
+
+-- Remover políticas conflitantes para módulos
+DROP POLICY IF EXISTS "Professors can manage their course modules" ON public.modules;
+DROP POLICY IF EXISTS "Professors can create modules for their courses" ON public.modules;
+
+-- Política para professores criarem módulos nos seus cursos
+CREATE POLICY "Professors can create modules for their courses"
+ON public.modules
+FOR INSERT
+TO authenticated
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.courses 
+    WHERE id = course_id AND professor_id = auth.uid()
+  )
+);
+
+-- Política para professores visualizarem módulos dos seus cursos
+CREATE POLICY "Professors can view their course modules"
+ON public.modules
+FOR SELECT
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM public.courses 
+    WHERE id = course_id AND (professor_id = auth.uid() OR status = 'approved')
+  ) OR
+  EXISTS (
+    SELECT 1 FROM public.profiles 
+    WHERE id = auth.uid() AND role = 'admin'
+  )
+);
+
+-- Política para professores atualizarem módulos dos seus cursos
+CREATE POLICY "Professors can update their course modules"
+ON public.modules
+FOR UPDATE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM public.courses 
+    WHERE id = course_id AND professor_id = auth.uid() AND status IN ('pending', 'draft')
+  )
+)
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.courses 
+    WHERE id = course_id AND professor_id = auth.uid() AND status IN ('pending', 'draft')
+  )
+);
+
+-- Política para professores deletarem módulos dos seus cursos
+CREATE POLICY "Professors can delete their course modules"
+ON public.modules
+FOR DELETE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM public.courses 
+    WHERE id = course_id AND professor_id = auth.uid() AND status IN ('pending', 'draft')
+  )
+);
+
+-- Remover políticas conflitantes para lições
+DROP POLICY IF EXISTS "Professors can manage lessons in their modules" ON public.lessons;
+
+-- Política para professores criarem lições nos seus módulos
+CREATE POLICY "Professors can create lessons in their modules"
+ON public.lessons
+FOR INSERT
+TO authenticated
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.modules m
+    JOIN public.courses c ON c.id = m.course_id
+    WHERE m.id = module_id AND c.professor_id = auth.uid()
+  )
+);
+
+-- Política para professores visualizarem lições dos seus módulos
+CREATE POLICY "Professors can view their module lessons"
+ON public.lessons
+FOR SELECT
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM public.modules m
+    JOIN public.courses c ON c.id = m.course_id
+    WHERE m.id = module_id AND (c.professor_id = auth.uid() OR c.status = 'approved')
+  ) OR
+  EXISTS (
+    SELECT 1 FROM public.profiles 
+    WHERE id = auth.uid() AND role = 'admin'
+  )
+);
+
+-- Política para professores atualizarem lições dos seus módulos
+CREATE POLICY "Professors can update their module lessons"
+ON public.lessons
+FOR UPDATE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM public.modules m
+    JOIN public.courses c ON c.id = m.course_id
+    WHERE m.id = module_id AND c.professor_id = auth.uid() AND c.status IN ('pending', 'draft')
+  )
+)
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.modules m
+    JOIN public.courses c ON c.id = m.course_id
+    WHERE m.id = module_id AND c.professor_id = auth.uid() AND c.status IN ('pending', 'draft')
+  )
+);
+
+-- Política para professores deletarem lições dos seus módulos
+CREATE POLICY "Professors can delete their module lessons"
+ON public.lessons
+FOR DELETE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM public.modules m
+    JOIN public.courses c ON c.id = m.course_id
+    WHERE m.id = module_id AND c.professor_id = auth.uid() AND c.status IN ('pending', 'draft')
+  )
+);
+
+-- Função para aprovar curso
+CREATE OR REPLACE FUNCTION public.approve_course(p_course_id UUID)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+    -- Verificar se o usuário é admin
+    IF NOT public.is_admin() THEN
+        RAISE EXCEPTION 'Apenas administradores podem aprovar cursos';
+    END IF;
+    
+    -- Atualizar status do curso
+    UPDATE public.courses 
+    SET 
+        status = 'approved',
+        approved_by = auth.uid(),
+        approved_at = NOW(),
+        updated_at = NOW()
+    WHERE id = p_course_id AND status = 'pending';
+    
+    -- Verificar se o curso foi encontrado e atualizado
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Curso não encontrado ou não está pendente';
+    END IF;
+    
+    -- Criar notificação para o professor
+    INSERT INTO public.notifications (user_id, message, type, link)
+    SELECT 
+        professor_id,
+        'Seu curso "' || title || '" foi aprovado e está disponível para matrículas!',
+        'course_approved',
+        '/professor/courses/' || id
+    FROM public.courses 
+    WHERE id = p_course_id;
+END;
+$$;
+
+-- Função para rejeitar curso
+CREATE OR REPLACE FUNCTION public.reject_course(p_course_id UUID, p_rejection_reason TEXT)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+    -- Verificar se o usuário é admin
+    IF NOT public.is_admin() THEN
+        RAISE EXCEPTION 'Apenas administradores podem rejeitar cursos';
+    END IF;
+    
+    -- Verificar se foi fornecido um motivo
+    IF p_rejection_reason IS NULL OR trim(p_rejection_reason) = '' THEN
+        RAISE EXCEPTION 'É obrigatório fornecer um motivo para rejeição';
+    END IF;
+    
+    -- Atualizar status do curso
+    UPDATE public.courses 
+    SET 
+        status = 'rejected',
+        approved_by = auth.uid(),
+        approved_at = NOW(),
+        rejection_reason = p_rejection_reason,
+        updated_at = NOW()
+    WHERE id = p_course_id AND status = 'pending';
+    
+    -- Verificar se o curso foi encontrado e atualizado
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Curso não encontrado ou não está pendente';
+    END IF;
+    
+    -- Criar notificação para o professor
+    INSERT INTO public.notifications (user_id, message, type, link)
+    SELECT 
+        professor_id,
+        'Seu curso "' || title || '" foi rejeitado. Motivo: ' || p_rejection_reason,
+        'course_rejected',
+        '/professor/courses/' || id
+    FROM public.courses 
+    WHERE id = p_course_id;
+END;
+$$;
