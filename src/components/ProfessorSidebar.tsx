@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { BookOpen, GraduationCap, LayoutDashboard, MessageSquare, Clock, CheckCircle, Menu, X, User, ClipboardList, ClipboardCheck } from "lucide-react";
+import { BookOpen, GraduationCap, LayoutDashboard, MessageSquare, Clock, CheckCircle, Menu, X, User, ClipboardList, ClipboardCheck, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -15,15 +15,15 @@ export const ProfessorSidebar = () => {
     const checkIfMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkIfMobile();
     window.addEventListener('resize', checkIfMobile);
-    
+
     return () => {
       window.removeEventListener('resize', checkIfMobile);
     };
   }, []);
-  
+
   const navItems = [
     {
       title: "Dashboard",
@@ -69,6 +69,11 @@ export const ProfessorSidebar = () => {
       title: "Registro de Frequência",
       icon: <ClipboardCheck size={20} />,
       href: "/professor/attendance",
+    },
+    {
+      title: "Minhas Turmas",
+      icon: <Users size={20} />,
+      href: "/professor/classes",
     },
   ];
 
